@@ -15,6 +15,4 @@ Sec-Fetch-Mode: navigate
 Sec-Fetch-User: ?1
 Sec-Fetch-Dest: document
 Accept-Encoding: gzip, deflate, br, zstd
-If-None-Match: "2d-5913a76187bc0"
-If-Modified-Since: Thu, 29 Aug 2019 05:05:59 GMT
 
