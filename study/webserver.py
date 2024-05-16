@@ -59,11 +59,18 @@ class WebServer:
             static_file_path = "static/index.html"
 
             # ファイルからレスポンスボディを生成
-            with open(static_file_path, "rb") as f:
-                response_body = f.read()
+            try:
+                with open(static_file_path, "rb") as f:
+                    response_body = f.read()
 
-            # レスポンスラインを生成
-            response_line = "HTTP/1.1 200 OK\r\n"
+                # レスポンスラインを生成
+                response_line = "HTTP/1.1 200 OK\r\n"
+
+            except OSError:
+                # ファイルが見つからなかった場合は404を返す
+                response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
+                response_line = "HTTP/1.1 404 Not Found\r\n"
+
             # レスポンスヘッダーを生成
             response_header = ""
             response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}\r\n"
