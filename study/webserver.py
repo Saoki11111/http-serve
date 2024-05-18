@@ -14,6 +14,14 @@ class WebServer:
     # 静的配信するファイルを置くディレクトリ
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+    MIME_TYPES = {
+       "html": "text/html",
+       "css": "text/css",
+       "png": "image/png",
+       "jpg": "image/jpg",
+       "gif": "image/gif",
+    }
+
     def serve(self):
         """
         サーバーを起動する
@@ -57,22 +65,29 @@ class WebServer:
 
                     # pathの先頭の/を削除し、相対パスにしておく
                     relative_path = path.lstrip("/")
+                    if relative_path == "":
+                        relative_path = "index.html"
                     # ファイルのpathを取得
-                    # static_file_path = os.path.join(self.STATIC_ROOT, relative_path)
-                    static_file_path = "static/index.html"
+                    static_file_path = os.path.join(self.STATIC_ROOT, relative_path)
+                    # print(static_file_path)
+                    #   ~/workspace/python/httpd-serve/study/static/logo.png
+                    # static_file_path = "static/index.html"
 
                     # ファイルからレスポンスボディを生成
-                    try:
+                    if os.path.exists(static_file_path):
                         with open(static_file_path, "rb") as f:
                             response_body = f.read()
-
                         # レスポンスラインを生成
                         response_line = "HTTP/1.1 200 OK\r\n"
 
-                    except OSError:
+                        ext = os.path.splitext(static_file_path)[1][1:]
+                        content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
+                    else:
                         # ファイルが見つからなかった場合は404を返す
                         response_body = "<html><body><h1>404 Not Found</h1></body></html>"
                         response_line = "HTTP/1.1 404 Not Found\r\n"
+                        content_type = "text/html"
+
 
                     # レスポンスヘッダーを生成
                     response_header = ""
@@ -80,7 +95,7 @@ class WebServer:
                     response_header += "Host: HenaServer/0.1\r\n"
                     response_header += f"Content-Length: {len(response_body)}\r\n"
                     response_header += "Connection: Close\r\n"
-                    response_header += "Content-Type: text/html\r\n"
+                    response_header += f"Content-Type: {content_type}\r\n"
 
                     # レスポンス全体を生成する
                     response = (response_line + response_header + "\r\n").encode() + response_body
